@@ -1,0 +1,22 @@
+name: Daily Commit
+
+on:
+  schedule:
+    - cron: "0 5 * * *"   # Runs daily at 05:00 UTC
+  workflow_dispatch:       # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Make a dummy change
+        run: |
+          echo "Last run: $(date)" > activity.txt
+          git config user.name "iamsonubisht"
+          git config user.email "iamsonubisht95@gmail.com"
+          git add activity.txt
+          git commit -m "chore: automated daily commit" || echo "No changes to commit"
+          git push origin main
