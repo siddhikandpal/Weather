@@ -2,28 +2,33 @@ name: Daily Commit
 
 on:
   schedule:
-    - cron: "0 */2 * * *"   # Runs every 2 hours (00:00, 02:00, 04:00... UTC)
+    - cron: "0 */2 * * *"   # Runs every 2 hours
   workflow_dispatch:         # Allow manual trigger
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # allow pushing commits
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Make 6 dummy commits
+      - name: Make dummy analytic-style commits
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          for i in {1..6}
+
+          # Random number of commits (2–6) each run
+          NUM=$(( ( RANDOM % 5 )  + 2 ))
+
+          for i in $(seq 1 $NUM)
           do
-            echo "Commit #$i at $(date)" >> activity.txt
-            git add activity.txt
-            git commit -m "chore: automated commit #$i"
+            timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+            value=$(( RANDOM % 500 + 50 ))   # random "metric" value
+            echo "[$timestamp] visitors=$value" >> analytics.log
+            git add analytics.log
+            git commit -m "analytics: updated visitors=$value at $timestamp"
           done
-          
+
           git push
